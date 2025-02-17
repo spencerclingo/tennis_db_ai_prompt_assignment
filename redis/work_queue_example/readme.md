@@ -10,8 +10,9 @@ Feel free to read the blog and understand the intent of the provided code.
 You will need to put your own redis connection information in [settings.py](settings.py). You can get a free 30mb REDIS account on redis.io. Or alternatively you could install REDIS locally.
 
 # Python environment
-Recommend using Python 3.11.3
-pip install -r requirements.txt
+- Recommend using Python 3.11.3 https://www.python.org/ftp/python/3.11.3/
+- I like to use VSCode. You can launch vscode from this directory. Then use the command pallete to (ctrl+shift+p) "Python: Create Virtual Environment". Then choose the 3.11.3 version and check the box for including requirements.txt (or pip install it after).
+- pip install -r requirements.txt
 
 # Questions
 
