@@ -9,6 +9,9 @@ Feel free to read the blog and understand the intent of the provided code.
 
 You will need to put your own redis connection information in [settings.py](settings.py). You can get a free 30mb REDIS account on redis.io. Or alternatively you could install REDIS locally.
 
+# Python environment
+Recommend using Python 3.11.3
+pip install -r requirements.txt
 
 # Questions
 
