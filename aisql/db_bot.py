@@ -10,11 +10,6 @@ fdir = os.path.dirname(__file__)
 def getPath(fname):
     return os.path.join(fdir, fname)
 
-# Prevent committing config.json
-# This is a local change. Reverse with:
-#          git update-index --no-assume-unchanged config.json
-os.system("git update-index --assume-unchanged '" + getPath("config.json") + "'")
-
 # SQLITE
 sqliteDbPath = getPath("aidb.sqlite")
 setupSqlPath = getPath("setup.sql")
