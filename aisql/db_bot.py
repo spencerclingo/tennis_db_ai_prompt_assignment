@@ -104,12 +104,14 @@ for strategy in strategies:
         print(question)
         error = "None"
         try:
-            sqlSyntaxResponse = getChatGptResponse(strategies[strategy] + " " + question)
+            getSqlFromQuestionEngineeredPrompt = strategies[strategy] + " " + question
+            sqlSyntaxResponse = getChatGptResponse(getSqlFromQuestionEngineeredPrompt)
             sqlSyntaxResponse = sanitizeForJustSql(sqlSyntaxResponse)
             print(sqlSyntaxResponse)
             queryRawResponse = str(runSql(sqlSyntaxResponse))
             print(queryRawResponse)
             friendlyResultsPrompt = "I asked a question \"" + question +"\" and the response was \""+queryRawResponse+"\" Please, just give a concise response in a more friendly way? Please do not give any other suggests or chatter."
+            # betterFriendlyResultsPrompt = "I asked a question: \"" + question +"\" and I queried this database " + setupSqlScript + " with this query " + sqlSyntaxResponse + ". The query returned the results data: \""+queryRawResponse+"\". Could you concisely answer my question using the results data?"
             friendlyResponse = getChatGptResponse(friendlyResultsPrompt)
             print(friendlyResponse)
         except Exception as err:
