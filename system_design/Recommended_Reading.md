@@ -1,5 +1,9 @@
 # Recommended Readings
 
+## Data InfoGraphics (Velocity and Volume)
+https://www.domo.com/learn/infographic/data-never-sleeps-11
+https://www.domo.com/learn/infographic/data-never-sleeps-12
+
 ## Consistent Hashing (horizontal scaling concepts)
 https://www.youtube.com/watch?v=UF9Iqmg94tk
 
