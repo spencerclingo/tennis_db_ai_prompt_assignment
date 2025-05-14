@@ -1,5 +1,8 @@
 # Recommended Readings
 
+## Cap Theorem
+https://www.instaclustr.com/blog/cassandra-vs-mongodb/
+
 ## Data InfoGraphics (Velocity and Volume)
 https://www.domo.com/learn/infographic/data-never-sleeps-11
 https://www.domo.com/learn/infographic/data-never-sleeps-12
