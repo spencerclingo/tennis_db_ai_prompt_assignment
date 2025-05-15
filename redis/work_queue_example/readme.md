@@ -3,9 +3,26 @@
 This sample was taken from a machine learning blog:
 https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 
-Feel free to read the blog and understand the intent of the provided code. 
+Feel free to read the blog and understand the intent of the provided code.
 
 ![alt text](system_design.png)
+
+The tutorial talks about apache web server but you can just run the commands in three separate shells (or threads in colab):
+
+First shell:
+```
+python run_web_server.py 
+```
+
+Second shell:
+```
+python run_model_server.py
+```
+
+Third shell:
+```
+python simple_request.py 
+```
 
 # Setup settings.py
 
