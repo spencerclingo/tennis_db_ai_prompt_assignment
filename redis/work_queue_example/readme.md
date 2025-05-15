@@ -1,9 +1,10 @@
-# Sample Work Queue
+# Work Queue Project (polling, notifications, logging, concurrency, redis)
 
 This sample was taken from a machine learning blog:
 https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 
 Feel free to read the blog and understand the intent of the provided code.
+See the other files: https://github.com/byu-cs-452/byu-cs-452-class-content/tree/main/redis/work_queue_example 
 
 ![alt text](system_design.png)
 
@@ -32,6 +33,14 @@ You will need to put your own redis connection information in [settings.py](sett
 - Recommend using Python 3.11.3 https://www.python.org/ftp/python/3.11.3/
 - I like to use VSCode. You can launch vscode from this directory. Then use the command pallete to (ctrl+shift+p) "Python: Create Virtual Environment". Then choose the 3.11.3 version and check the box for including requirements.txt (or pip install it after).
 - pip install -r requirements.txt
+- *or alternatively manually install each package*
+```
+pip install tensorflow
+pip install flask
+pip install pillow
+pip install redis
+pip install requests
+```
 
 # Deliverables (PDF that includes code)
 
