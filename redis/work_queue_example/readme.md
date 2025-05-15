@@ -4,7 +4,7 @@ This sample was taken from a machine learning blog:
 https://www.pyimagesearch.com/2018/02/05/deep-learning-production-keras-redis-flask-apache/
 
 Feel free to read the blog and understand the intent of the provided code.
-See the other files: https://github.com/byu-cs-452/byu-cs-452-class-content/tree/main/redis/work_queue_example 
+See the other files: https://github.com/byu-cs-452/byu-cs-452-class-content/tree/main/redis/work_queue_example
 
 ![alt text](system_design.png)
 
