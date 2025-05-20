@@ -98,7 +98,7 @@ def get_talk_urls(conference_url, year, month, session):
     logging.info(f"Found {len(talk_urls)} talk URLs for {year}-{month}")
     return talk_urls
 
-def scrape_talk(talk_url, year, month, talk_number, session):
+def scrape_talk(talk_url, year, session):
     """
     Scrape metadata and transcript for a single talk, skipping invalid entries.
     """
@@ -166,16 +166,41 @@ def scrape_talk(talk_url, year, month, talk_number, session):
         "talk": content,
     }
 
+def split_talks(talk):
+    """
+    Split the talk content into paragraphs and clean them.
+    """
+    paragraph_data = []
+
+    paragraphs = talk.talk.split('\n\n')
+    i = 1
+    for paragraph in paragraphs:
+        paragraph_data.append({
+            "title": talk.title,
+            "speaker": talk.speaker,
+            "calling": talk.calling,
+            "year": talk.year,
+            "season": talk.season,
+            "url": talk.url,
+            "paragraph_number": i,
+            "paragraph": paragraph.strip(),
+        })
+        i += 1
+
+    return paragraph_data
+
 # Main execution
 talks_data = []
+paragraphs_data = []
 session = requests.Session()
 
 for conf_url, year, month in get_conference_urls(2018, 2025):
     talk_urls = get_talk_urls(conf_url, year, month, session)
     for url, talk_number in talk_urls:
-        talk = scrape_talk(url, year, month, talk_number, session)
+        talk = scrape_talk(url, year, session)
         if talk:
             talks_data.append(talk)
+            paragraphs_data.extend(split_talks(talk))
 
 session.close()
 
