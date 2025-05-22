@@ -2,7 +2,7 @@
 
 ## Situation
 
-An investor asks you to take $1,000,000 (one milliondollars) and deploy a website that hosts realtime stats for all events in the next Winter Olympics including leaderboards by different categories. Some quick research tells you you can expect about 360,000,000 requests per day during 17 days of the olympic games. 
+An investor asks you to take $1,000,000 (one million dollars) and deploy a website that hosts realtime stats for all events in the next Winter Olympics including leaderboards by different categories. Some quick research tells you you can expect about 360,000,000 requests per day during 17 days of the olympic games. 
 
 
 ## Deliverable
