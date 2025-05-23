@@ -172,16 +172,16 @@ def split_talks(talk):
     """
     paragraph_data = []
 
-    paragraphs = talk.talk.split('\n\n')
+    paragraphs = talk["talk"].split('\n\n')
     i = 1
     for paragraph in paragraphs:
         paragraph_data.append({
-            "title": talk.title,
-            "speaker": talk.speaker,
-            "calling": talk.calling,
-            "year": talk.year,
-            "season": talk.season,
-            "url": talk.url,
+            "title": talk["title"],
+            "speaker": talk["speaker"],
+            "calling": talk["calling"],
+            "year": talk["year"],
+            "season": talk["season"],
+            "url": talk["url"],
             "paragraph_number": i,
             "paragraph": paragraph.strip(),
         })
@@ -208,4 +208,6 @@ logging.info(f"Scraped {len(talks_data)} talks")
 
 # Save to CSV
 talks_df = pd.DataFrame(talks_data)
+paragraphs_df = pd.DataFrame(paragraphs_data)
 talks_df.to_csv('talks.csv', index=False)
+paragraphs_df.to_csv('paragraphs.csv', index=False)
