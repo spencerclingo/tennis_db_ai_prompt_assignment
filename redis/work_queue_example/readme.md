@@ -56,6 +56,42 @@ What objects with which scores does it identify this as?
 
 5. Polling is the most expensive way to interact with a system. Polling can be reliable, but costly. Rather than having the web server poll REDIS waiting for a key to show up, could you research, think, and implement a way that instead uses notifications and only uses polling as a backup. Test your implementation and describe how you fixed it with words, code, and diagrams.
 
-6. The [stress_test.py](stress_test.py) code doesn't work. Could you fix it?
+To use Redis notifications it is not that difficult. Though you do need to open the redis CLI (you can access from the cloud redis insight tool) and enable notifications:
+```
+CONFIG SET notify-keyspace-events KEA
+```
+
+The Code then to enable this would be:
+```py
+db = redis.StrictRedis(host=settings.REDIS_HOST,
+	port=settings.REDIS_PORT, password=settings.REDIS_PASSWORD, db=settings.REDIS_DB)
+# Define a handle to the pubsub
+p = db.pubsub()
+
+#....
+
+# generate an ID for the classification then add the
+# classification ID + image to the queue
+k = str(uuid.uuid4())
+image = helpers.base64_encode_image(image)
+d = {"id": k, "image": image}
+
+# Subscribe to key-space events for our specific key (subscribe before queueing work so we don't miss it!)
+p.psubscribe(f"__keyspace@0__:{k}")
+
+# Push work into queue
+db.rpush(settings.IMAGE_QUEUE, json.dumps(d))
+
+#....
+
+print(f"waiting for message...")
+result = p.get_message(timeout=24.0)
+print (result)
+output = db.get(k)
+print (output)
+
+```
+
+6. The [stress_test.py](stress_test.py) code doesn't work. Could you fix it? (the threads are defined started and lost, they need to be "joined" so the program doesn't terminate before they are done)
 
 7. Tracing what happens in a multi-agent system can be challenging. Can you write a simple logging function that can be called from any of the files that logs in a consistent format (server name, main running python script, timestamp, action)
