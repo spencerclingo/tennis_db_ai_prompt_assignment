@@ -43,6 +43,7 @@ with open(configPath) as configFile:
     config = json.load(configFile)
 
 openAiClient = OpenAI(api_key = config["openaiKey"])
+openAiClient.models.list() # check if the key is valid (update in config.json)
 
 def getChatGptResponse(content):
     stream = openAiClient.chat.completions.create(
@@ -72,11 +73,11 @@ strategies = {
 
 questions = [
     "Which are the most awarded dogs?",
-    "Which dogs have multiple owners?",
-    "Which people have multiple dogs?",
-    "What are the top 3 cities represented?",
-    "What are the names and cities of the dogs who have awards?",
-    "Who has more than one phone number?",
+    # "Which dogs have multiple owners?",
+    # "Which people have multiple dogs?",
+    # "What are the top 3 cities represented?",
+    # "What are the names and cities of the dogs who have awards?",
+    # "Who has more than one phone number?",
     "Who doesn't have a way for us to text them?",
     "Will we have a problem texting any of the previous award winners?"
     # "I need insert sql into my tables can you provide good unique data?"
@@ -95,19 +96,27 @@ def sanitizeForJustSql(value):
 for strategy in strategies:
     responses = {"strategy": strategy, "prompt_prefix": strategies[strategy]}
     questionResults = []
+    print("########################################################################")
+    print(f"Running strategy: {strategy}")
     for question in questions:
+
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("Question:")
         print(question)
         error = "None"
         try:
             getSqlFromQuestionEngineeredPrompt = strategies[strategy] + " " + question
             sqlSyntaxResponse = getChatGptResponse(getSqlFromQuestionEngineeredPrompt)
             sqlSyntaxResponse = sanitizeForJustSql(sqlSyntaxResponse)
+            print("SQL Syntax Response:")
             print(sqlSyntaxResponse)
             queryRawResponse = str(runSql(sqlSyntaxResponse))
+            print("Query Raw Response:")
             print(queryRawResponse)
             friendlyResultsPrompt = "I asked a question \"" + question +"\" and the response was \""+queryRawResponse+"\" Please, just give a concise response in a more friendly way? Please do not give any other suggests or chatter."
             # betterFriendlyResultsPrompt = "I asked a question: \"" + question +"\" and I queried this database " + setupSqlScript + " with this query " + sqlSyntaxResponse + ". The query returned the results data: \""+queryRawResponse+"\". Could you concisely answer my question using the results data?"
             friendlyResponse = getChatGptResponse(friendlyResultsPrompt)
+            print("Friendly Response:")
             print(friendlyResponse)
         except Exception as err:
             error = str(err)
