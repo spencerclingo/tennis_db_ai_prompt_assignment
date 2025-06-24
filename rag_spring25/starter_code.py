@@ -8,16 +8,7 @@ import tiktoken
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-def truncate_text(text, max_tokens, encoding_name="cl100k_base"):
-    """Truncate text to fit within max_tokens using tiktoken."""
-    encoding = tiktoken.get_encoding(encoding_name)
-    tokens = encoding.encode(text)
-    if len(tokens) > max_tokens:
-        tokens = tokens[:max_tokens]
-        text = encoding.decode(tokens)
-    return text
-
-def generate_chatgpt_response(search_term, talks, model="gpt-3.5-turbo", max_context_tokens=3000):
+def generate_chatgpt_response(search_term, talks, model="gpt-4o", max_context_tokens=3000):
     """
     Generate a ChatGPT response based on the search term and provided talks.
     Ensure that the response uses only the talk content, with no external sources.
