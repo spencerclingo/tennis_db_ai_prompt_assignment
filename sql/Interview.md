@@ -6,7 +6,8 @@ Submit a text entry with the following self evaluation:
 
 1. Who did you interview with and when did you interview?
 2. Rate your interview from 1 to 3 points.
-3. Copy paste the leetcode submission url *https://leetcode.com/problems/**some-problem**/submissions/**your_submission_id**/ Example (https://leetcode.com/problems/equal-row-and-column-pairs/submissions/970584228/)
+3. Copy paste the leetcode submission url *https://leetcode.com/problems/**some-problem**/submissions/**your_submission_id**/* 
+  Example (https://leetcode.com/problems/equal-row-and-column-pairs/submissions/970584228/)
 
 
 ## Rating Guidelines:
