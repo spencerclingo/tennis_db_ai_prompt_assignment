@@ -1,4 +1,4 @@
-## Use the following link to find 10 database problems to practice on:
+## Use the following link to find 10 database problems to practice on and solve
 
 https://leetcode.com/problem-list/2hv17fjt 
  
