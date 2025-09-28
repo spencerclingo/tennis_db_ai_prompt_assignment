@@ -1,48 +1,57 @@
-create table person (
-    person_id integer primary key,
-    name varchar(20) not null
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS `players` (
+  `id` INTEGER NOT NULL PRIMARY KEY,
+  `source_player_id` INTEGER NULL,
+  `first_name` TEXT NOT NULL,
+  `last_name` TEXT NOT NULL,
+  `gender` TEXT,
+  `country_code` TEXT NULL,
+  `birth_date` TEXT NULL DEFAULT NULL,
+  UNIQUE (`source_player_id`)
 );
 
-create table phone (
-    phone_id integer primary key,
-    person_id integer not null,
-    area_code int not null,
-    number int not null,
-    can_recieve_sms tinyint not null,
-    foreign key (person_id) references person (person_id)
+CREATE TABLE IF NOT EXISTS `tournaments` (
+  `id` INTEGER NOT NULL PRIMARY KEY,
+  `name` TEXT NOT NULL,
+  `level` TEXT NULL,
+  `surface` TEXT NULL,
+  UNIQUE (`name`)
 );
 
-create table address (
-    address_id integer primary key,
-    person_id integer not null,
-    street varchar(50),
-    zip integer not null
+CREATE TABLE IF NOT EXISTS `tournament_editions` (
+  `id` INTEGER NOT NULL PRIMARY KEY,
+  `tournament_id` INTEGER NOT NULL,
+  `year` INTEGER NOT NULL,
+  `end_date` TEXT NOT NULL,
+  UNIQUE (`tournament_id`, `year`),
+  FOREIGN KEY (`tournament_id`) REFERENCES `tournaments` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table zip (
-    zip integer primary key,
-    city varchar(35),
-    state_two_letter_code char(2)
+CREATE TABLE IF NOT EXISTS `matches` (
+  `id` INTEGER PRIMARY KEY,
+  `tournament_edition_id` INTEGER NOT NULL,
+  `winner_id` INTEGER NOT NULL,
+  `loser_id` INTEGER NOT NULL,
+  `round` TEXT NOT NULL,
+  `score` TEXT NULL,
+  FOREIGN KEY (`tournament_edition_id`) REFERENCES `tournament_editions` (`id`) 
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`winner_id`) REFERENCES `players` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`loser_id`) REFERENCES `players` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table dog (
-    dog_id integer primary key,
-    name varchar(35),
-    breed varchar(35),
-    birth_date date
+CREATE TABLE IF NOT EXISTS `rankings` (
+  `id` INTEGER PRIMARY KEY,
+  `player_id` INTEGER NOT NULL,
+  `ranking_date` TEXT NOT NULL,
+  `rank` INTEGER NOT NULL,
+  `points` INTEGER NULL,
+  UNIQUE (`player_id`, `ranking_date`),
+  FOREIGN KEY (`player_id`) REFERENCES `players` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-create table award (
-    award_id integer primary key,
-    dog_id integer not null,
-    event_date date,
-    award_name varchar(25) not null,
-    foreign key (dog_id) references dog (dog_id)
-);
-
-create table person_dog (
-    dog_id integer,
-    person_id integer,
-    foreign key (dog_id) references dog (dog_id),
-    foreign key (person_id) references person (person_id)
-);

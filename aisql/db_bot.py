@@ -1,5 +1,7 @@
 import json
-from openai import OpenAI
+
+# from openai import OpenAI
+from google import genai
 import os
 import sqlite3
 from time import time
@@ -7,8 +9,11 @@ from time import time
 print("Running db_bot.py!")
 
 fdir = os.path.dirname(__file__)
+
+
 def getPath(fname):
     return os.path.join(fdir, fname)
+
 
 # SQLITE
 sqliteDbPath = getPath("aidb.sqlite")
@@ -19,22 +24,22 @@ setupSqlDataPath = getPath("setupData.sql")
 if os.path.exists(sqliteDbPath):
     os.remove(sqliteDbPath)
 
-sqliteCon = sqlite3.connect(sqliteDbPath) # create new db
+sqliteCon = sqlite3.connect(sqliteDbPath)  # create new db
 sqliteCursor = sqliteCon.cursor()
-with (
-        open(setupSqlPath) as setupSqlFile,
-        open(setupSqlDataPath) as setupSqlDataFile
-    ):
-
+with open(setupSqlPath) as setupSqlFile, open(setupSqlDataPath) as setupSqlDataFile:
     setupSqlScript = setupSqlFile.read()
     setupSQlDataScript = setupSqlDataFile.read()
 
-sqliteCursor.executescript(setupSqlScript) # setup tables and keys
-sqliteCursor.executescript(setupSQlDataScript) # setup tables and keys
+sqliteCursor.executescript(setupSqlScript)  # setup tables and keys
+sqliteCursor.executescript(setupSQlDataScript)  # setup tables and keys
+
 
 def runSql(query):
+    # print(f"\n\n\n\nin run sql\n{query}")
     result = sqliteCursor.execute(query).fetchall()
+    # print(f"\n\n\n\n{result}\n\n\n\n")
     return result
+
 
 # OPENAI
 configPath = getPath("config.json")
@@ -42,49 +47,37 @@ print(configPath)
 with open(configPath) as configFile:
     config = json.load(configFile)
 
-openAiClient = OpenAI(api_key = config["openaiKey"])
-openAiClient.models.list() # check if the key is valid (update in config.json)
+geminiClient = genai.Client(api_key=config["openaiKey"])
+geminiClient.models.list()  # check if the key is valid (update in config.json)
 
-def getChatGptResponse(content):
-    stream = openAiClient.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": content}],
-        stream=True,
+
+def getGeminiResponse(content):
+    response = geminiClient.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=content,
     )
 
-    responseList = []
-    for chunk in stream:
-        if chunk.choices[0].delta.content is not None:
-            responseList.append(chunk.choices[0].delta.content)
-
-    result = "".join(responseList)
-    return result
+    return response.text
 
 
 # strategies
 commonSqlOnlyRequest = " Give me a sqlite select statement that answers the question. Only respond with sqlite syntax. If there is an error do not explain it!"
 strategies = {
-    "zero_shot": setupSqlScript + commonSqlOnlyRequest,
-    "single_domain_double_shot": (setupSqlScript +
-                   " Who doesn't have a way for us to text them? " +
-                   " \nSELECT p.person_id, p.name\nFROM person p\nLEFT JOIN phone ph ON p.person_id = ph.person_id AND ph.can_recieve_sms = 1\nWHERE ph.phone_id IS NULL;\n " +
-                   commonSqlOnlyRequest)
+    "zero_shot": setupSqlScript + setupSQlDataScript,
+    "single_domain_double_shot": (
+        setupSqlScript + setupSQlDataScript + commonSqlOnlyRequest
+    ),
 }
 
 questions = [
-    "Which are the most awarded dogs?",
-    # "Which dogs have multiple owners?",
-    # "Which people have multiple dogs?",
-    # "What are the top 3 cities represented?",
-    # "What are the names and cities of the dogs who have awards?",
-    # "Who has more than one phone number?",
-    "Who doesn't have a way for us to text them?",
-    "Will we have a problem texting any of the previous award winners?"
-    # "I need insert sql into my tables can you provide good unique data?"
+    "Who was ranked in the top 25 on September 1st?",
+    "What rounds in tournaments did the 4th ranked player on December 31st get to throughout the year?",
+    "Which players played each other the most throughout the year?",
 ]
 
+
 def sanitizeForJustSql(value):
-    gptStartSqlMarker = "```sql"
+    gptStartSqlMarker = "```sqlite"
     gptEndSqlMarker = "```"
     if gptStartSqlMarker in value:
         value = value.split(gptStartSqlMarker)[1]
@@ -93,47 +86,59 @@ def sanitizeForJustSql(value):
 
     return value
 
+
 for strategy in strategies:
     responses = {"strategy": strategy, "prompt_prefix": strategies[strategy]}
     questionResults = []
     print("########################################################################")
     print(f"Running strategy: {strategy}")
     for question in questions:
-
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print(
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        )
         print("Question:")
         print(question)
         error = "None"
         try:
-            getSqlFromQuestionEngineeredPrompt = strategies[strategy] + " " + question
-            sqlSyntaxResponse = getChatGptResponse(getSqlFromQuestionEngineeredPrompt)
+            getSqlFromQuestionEngineeredPrompt = (
+                strategies[strategy] + " " + question + "\n" + commonSqlOnlyRequest
+            )
+            sqlSyntaxResponse = getGeminiResponse(getSqlFromQuestionEngineeredPrompt)
             sqlSyntaxResponse = sanitizeForJustSql(sqlSyntaxResponse)
             print("SQL Syntax Response:")
             print(sqlSyntaxResponse)
             queryRawResponse = str(runSql(sqlSyntaxResponse))
             print("Query Raw Response:")
             print(queryRawResponse)
-            friendlyResultsPrompt = "I asked a question \"" + question +"\" and the response was \""+queryRawResponse+"\" Please, just give a concise response in a more friendly way? Please do not give any other suggests or chatter."
+            friendlyResultsPrompt = (
+                'I asked a question "'
+                + question
+                + '" and the response was "'
+                + queryRawResponse
+                + '" Please, just give a concise response in a more friendly way? Please do not give any other suggests or chatter.'
+            )
             # betterFriendlyResultsPrompt = "I asked a question: \"" + question +"\" and I queried this database " + setupSqlScript + " with this query " + sqlSyntaxResponse + ". The query returned the results data: \""+queryRawResponse+"\". Could you concisely answer my question using the results data?"
-            friendlyResponse = getChatGptResponse(friendlyResultsPrompt)
+            friendlyResponse = getGeminiResponse(friendlyResultsPrompt)
             print("Friendly Response:")
             print(friendlyResponse)
         except Exception as err:
             error = str(err)
             print(err)
 
-        questionResults.append({
-            "question": question,
-            "sql": sqlSyntaxResponse,
-            "queryRawResponse": queryRawResponse,
-            "friendlyResponse": friendlyResponse,
-            "error": error
-        })
+        questionResults.append(
+            {
+                "question": question,
+                "sql": sqlSyntaxResponse,
+                "queryRawResponse": queryRawResponse,
+                "friendlyResponse": friendlyResponse,
+                "error": error,
+            }
+        )
 
     responses["questionResults"] = questionResults
 
     with open(getPath(f"response_{strategy}_{time()}.json"), "w") as outFile:
-        json.dump(responses, outFile, indent = 2)
+        json.dump(responses, outFile, indent=2)
 
 
 sqliteCursor.close()
